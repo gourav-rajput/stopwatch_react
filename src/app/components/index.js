@@ -42,7 +42,9 @@ class StopWatch extends Component {
 
   /* Start the Timer after checking if currently is in Pause state */
   onClickStart = () => {
-    this.initialTime = this.initialTime !== null ? new Date(Date.now() + (this.initialTime - this.state.currentTime)) : new Date()
+    this.initialTime = this.initialTime 
+      ? new Date(Date.now() + (this.initialTime - this.state.currentTime)) 
+      : new Date();
     this.startTimer();
   }
 
@@ -52,14 +54,14 @@ class StopWatch extends Component {
   /* Stop to Time */
   onClickStop = () => {
     clearInterval(this.timer);
-    this.setState({isRunning: false});
+    this.setState({ isRunning: false });
   }
 
   /* Store Current Time in laps Array */
   onClickLap = () => {
     let { isRunning, laps, currentTime, ...runningTime } = this.state;
-    laps.push(runningTime);
-    this.setState({laps});
+    laps.push( runningTime );
+    this.setState({ laps });
   }
 
   /* Reset Laps to initial */
@@ -79,41 +81,53 @@ class StopWatch extends Component {
         milliSeconds: 0
       });
     }
-  }
+  };
 
   /* Render Action Buttons */
-  renderNavbar = () => (
-    <nav className="controls">
-      {
-        !this.state.isRunning ? 
-          <a className="button" onClick={() => this.onClickStart()}>Start</a>
-        :
-          <React.Fragment>
-            <a className="button" onClick={() => this.onClickStop()}>Stop</a>   
-            <a className="button" onClick={() => this.onClickRestart()}>Restart</a>
-          </React.Fragment>
-      }
-      {
-        this.state.isRunning ? 
-          <a className="button" onClick={() => this.onClickLap()}>Lap</a>
-        :
-          null  
-      }
-      {
-        this.state.laps.length ?
-          <a className="button" onClick={() => this.onClickClearLaps()}>Clear Laps</a>
-        :
-          null  
-      }
-      {
-        (this.state.isRunning || this.initialTime !== null) ?
-          <a className="button" onClick={() => this.onClickReset()}>Reset</a>
-         :
-           null 
-      }
-    </nav>
-  )
-
+  renderNavbar = () => {
+    const { isRunning, laps } = this.state;
+    return (
+      <nav className="controls">
+        <a 
+          className={!isRunning ? "button" : "disabled-button"}
+          disabled={isRunning}
+          onClick={ !isRunning ? () => this.onClickStart() : null}>
+          Start
+        </a>
+        <a 
+          className={isRunning ? "button" : "disabled-button"}
+          disabled={!isRunning}
+          onClick={isRunning ? () => this.onClickStop() : null}>
+          Stop
+        </a>   
+        <a 
+          className={isRunning ? "button" : "disabled-button"}
+          disabled={!isRunning}
+          onClick={isRunning ? () => this.onClickRestart(): null}>
+          Restart
+        </a>
+        <a 
+          className={isRunning ? "button" : "disabled-button"}
+          disabled={!isRunning}
+          onClick={isRunning ?  () => this.onClickLap() : null}>
+          Lap
+        </a>
+        <a 
+          className={!laps.length ? "button" : "disabled-button"}
+          disabled={!laps.length}
+          onClick={laps.length ? () => this.onClickClearLaps() : null}>
+          Clear Laps
+        </a>
+        <a 
+          className={this.initialTime ? "button" : "disabled-button"}
+          disabled={!this.initialTime}
+          onClick={(isRunning || this.initialTime) ? () => this.onClickReset() : null}>
+          Reset
+        </a>
+      </nav>
+    );
+  };
+ 
   /* Render Timer */
   renderElapsedTime = () => {
     let { hours, minutes, seconds, milliSeconds } = this.state;
@@ -139,30 +153,28 @@ class StopWatch extends Component {
   }
 
   render() {
+    const { laps } = this.state;
     return (
-      <React.Fragment>
-        <div className="flex-container">
-          {this.renderNavbar()}
-          {this.renderElapsedTime()}
-          {
-            this.state.laps.length ?
-              <div className="results-wrapper">
-                <h1 className="title">Lap Results</h1>
-                <ul className="results">
-                  {
-                    this.state.laps.map((lap, index) => (
-                      <li key={index}>
-                        {`${lap.hours}:${lap.minutes}:${lap.seconds}:${lap.milliSeconds}`}
-                      </li>
-                    ))
-                  }
-                </ul>
-              </div> 
-            :
-              null   
-          }
-        </div>
-      </React.Fragment>
+      <div className="flex-container">
+        {this.renderNavbar()}
+        {this.renderElapsedTime()}
+        {
+          laps.length && (
+            <div className="results-wrapper">
+              <h1 className="title">Lap Results</h1>
+              <ul className="results">
+                {
+                  laps.map((lap, index) => (
+                    <li key={index}>
+                      {`${lap.hours}:${lap.minutes}:${lap.seconds}:${lap.milliSeconds}`}
+                    </li>
+                  ))
+                }
+              </ul>
+            </div> 
+           )
+        }
+      </div>
     );
   }
 }
